@@ -30,3 +30,38 @@ print(empty_counts)
 
 print("有没有完全重复的行：", df.duplicated().any())
 print("多余的完全重复行数：", df.duplicated().sum())
+
+raw = df.copy()
+df = df.apply(lambda column: column.str.strip())
+
+student_id = df["学号"]
+
+bad_id = ~student_id.str.fullmatch(r"[0-9]+", na=False)
+
+bad_email = df["邮箱"] != student_id + "@smbu.edu.cn"
+
+duplicate_id = (
+    student_id.ne("")
+    & df.duplicated(subset=["学号"], keep=False)
+)
+
+reasons = pd.Series("", index=df.index, dtype="string")
+
+checks = [
+    (bad_id, "学号为空或不是纯数字；"),
+    (bad_email, "邮箱与学号@smbu.edu.cn不一致；"),
+    (duplicate_id, "同一学号重复报名；"),
+]
+
+for condition, message in checks:
+    reasons.loc[condition] = reasons.loc[condition] + message
+
+has_problem = reasons.ne("")
+
+problems = raw.loc[has_problem].copy()
+problems["数据记录序号"] = problems.index + 1
+problems["问题原因"] = reasons.loc[has_problem]
+
+problems.to_csv("problems.csv", index=False, encoding="utf-8-sig")
+
+clean = df.loc[~has_problem].copy()
