@@ -1,0 +1,13 @@
+# Python 虚拟环境
+.venv/
+venv/
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+
+# 程序生成的输出文件（仓库根目录）
+/problems.csv
+/summary.csv
+/clean.csv
