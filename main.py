@@ -65,3 +65,21 @@ problems["问题原因"] = reasons.loc[has_problem]
 problems.to_csv("problems.csv", index=False, encoding="utf-8-sig")
 
 clean = df.loc[~has_problem].copy()
+
+summary = (
+    clean.groupby("志愿1")
+    .size()
+    .reset_index(name="人数")
+)
+summary["志愿1"] = summary["志愿1"].replace("", "未填写")
+
+print(summary)
+summary.to_csv("summary.csv", index=False, encoding="utf-8-sig")
+
+choice_count = clean[["志愿1", "志愿2"]].ne("").sum(axis=1)
+
+print("两个志愿都填：", choice_count.eq(2).sum())
+print("只填一个志愿：", choice_count.eq(1).sum())
+print("两个志愿都没填：", choice_count.eq(0).sum())
+
+clean.to_csv("clean.csv", index=False, encoding="utf-8-sig")
